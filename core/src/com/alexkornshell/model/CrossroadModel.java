@@ -19,6 +19,7 @@ public class CrossroadModel extends ApplicationAdapter {
 	Texture ver;
 	Texture hor;
 	TextureRegion car;
+	TextureRegion carBlue;
 
 	int screen;
 	int carW;
@@ -36,6 +37,7 @@ public class CrossroadModel extends ApplicationAdapter {
         ver = new Texture("core/assets/ver.png");
         hor = new Texture("core/assets/hor.png");
         car = new TextureRegion(new Texture(Gdx.files.internal("core/assets/car.png")), 0, 0, carW, carH);
+		carBlue = new TextureRegion(new Texture(Gdx.files.internal("core/assets/carBlue.png")), 0, 0, carW, carH + 1);
 
 		Lane lane1 = new Lane(1, 0.25, 0.25, 1, 3, 2, 0.5);
 		Lane lane3 = new Lane(3, 0.75, 0.75, 1, 3, 2, 0.5);
@@ -101,6 +103,7 @@ public class CrossroadModel extends ApplicationAdapter {
 		for (Lane lane : cross.lanes) {
 			for (Car c : lane.cars) {
 				batch.draw(car, c.polygon.getX(), c.polygon.getY(), c.polygon.getOriginX(), c.polygon.getOriginY(), carW, carH, c.polygon.getScaleX(), c.polygon.getScaleY(), c.polygon.getRotation());
+			//	batch.draw(carBlue, c.p.getX(), c.p.getY(), c.p.getOriginX(), c.p.getOriginY(), carW, carH, c.p.getScaleX(), c.p.getScaleY(), c.p.getRotation());
 			}
 		}
 		batch.end();

@@ -7,6 +7,7 @@ import static java.lang.Math.*;
 
 public class Car {
     Polygon polygon;
+    Polygon p;
 
     Crossroad cross;
     int screen;
@@ -37,6 +38,11 @@ public class Car {
     double dw;
 
     int ch;
+    double t;
+    double tn;
+    double dwp;
+    double vxp;
+    double vyp;
 
     public Car(Crossroad crossroad, Lane laneFrom, Lane laneTo, double paramV) {
 
@@ -79,12 +85,19 @@ public class Car {
         }
         polygon.setPosition((float) ((x - width / 2) * screen / 6 + screen / 2), (float) ((y - height / 2) * screen / 6 + screen / 2));
 
-        if (laneFrom.n % 4 == 0) {
-            r = 1.25;
-            w = abs(v) / r;
-        } else if (laneFrom.n % 2 == 0) {
-            r = 0.25;
-            w = -abs(v) / r;
+        p = new Polygon(new float[]{0, 0, 0, carH, carW, carH, carW, 0});
+        p.setOrigin(carW / 2, carH / 2);
+        p.setPosition((float) ((x - width / 2) * screen / 6 + screen / 2), (float) ((y - height / 2) * screen / 6 + screen / 2));
+        p.setRotation(polygon.getRotation());
+
+        if (!((laneFrom.n + laneTo.n) % 16 == 1 || (laneFrom.n + laneTo.n) % 16 == 9)) {
+            if (laneFrom.n % 4 == 0) {
+                r = 1.25;
+                w = abs(v) / r;
+            } else if (laneFrom.n % 2 == 0) {
+                r = 0.25;
+                w = -abs(v) / r;
+            }
         }
 
         if (laneFrom.n == 2 || laneFrom.n == 12) {
@@ -101,40 +114,100 @@ public class Car {
             dw = PI;
         }
 
+        dwp = dw;
+        vxp = vx;
+        vyp = vy;
+
     }
 
     public Car move(float dt) {
+        if (!stopped && !crashed) {
+            if (tn < 10) {
+                t += dt;
+                tn++;
+            } else if (tn == 10) {
+                p.translate((float) (vxp * 4 * t * screen / 6), (float) (vyp * 4 * t * screen / 6));
+                tn++;
+            } else {
 
-        //if (toStop(dt)) {
+                if (p.getX() + carW / 2 > 170 && p.getY() + carH / 2 > 170 && p.getX() + carW / 2 < 342 && p.getY() + carH / 2 < 342) {
+                    if (r == 0) {
+                        p.translate((float) (vxp * dt * screen / 6), (float) (vyp * dt * screen / 6));
+                    } else {
+                        p.translate((float) ((Math.cos(dwp + w * dt) - Math.cos(dwp)) * r * screen / 6), (float) ((Math.sin(dwp + w * dt) - Math.sin(dwp)) * r * screen / 6));
+                        p.rotate((float) (w * dt * 180 / PI));
+                        dwp += w * dt;
+                        if (p.getX() + carW / 2 <= 170 || p.getX() + carW / 2 >= 342) {
+                            if (r == 0.25) vxp = v;
+                            else if (r == 1.25) vxp = -v;
+                            vyp = 0;
+                        } else if (p.getY() + carH / 2 <= 170 || p.getY() + carH / 2 >= 342) {
+                            if (r == 0.25) vyp = -v;
+                            else if (r == 1.25) vyp = v;
+                            vxp = 0;
+                        }
+                    }
+                } else {
+                    p.translate((float) (vxp * dt * screen / 6), (float) (vyp * dt * screen / 6));
+                }
 
-        //} else
-        if (isCrashed()) {
+
+
+             /*   if (p.getX() > 170 && p.getY() > 170 && p.getX() < 342 && p.getY() < 342 && r != 0) {
+                    p.translate((float) ((Math.cos(dw + w * dt) - Math.cos(dw)) * r * screen / 6), (float) ((Math.sin(dw + w * dt) - Math.sin(dw)) * r * screen / 6));
+                    p.rotate((float) (w * dt * 180 / PI));
+                } else p.translate((float) (vx * dt * screen / 6), (float) (vy * dt * screen / 6)); */
+            }
+        }
+
+        stopped = toCrash();
+        if (!crashed) crashed = isCrashed();
+
+        if (stopped) {
+            // Wait
+        } else if (crashed) {
+            System.out.println(this);
             v = 0;
             vx = 0;
             vy = 0;
             w = 0;
         } else {
-            if ((laneFrom.n + laneTo.n) % 16 == 1 || (laneFrom.n + laneTo.n) % 16 == 9) {
 
-                if (abs(x) <= 1 && abs(y) <= 1) {
-                    onFrom = false;
-                    onCross = true;
+            if (abs(x) <= 1 && abs(y) <= 1) {
+                if (r == 0) {
                     x = x + vx * dt;
                     y = y + vy * dt;
-                    if (abs(x) > 1 || abs(y) > 1) {
-                        onCross = false;
-                        onTo = true;
-                    }
+                    polygon.translate((float) (vx * dt * screen / 6), (float) (vy * dt * screen / 6));
                 } else {
-                    x = x + vx * dt;
-                    y = y + vy * dt;
+                    x = x + (Math.cos(dw + w * dt) - Math.cos(dw)) * r;
+                    y = y + (Math.sin(dw + w * dt) - Math.sin(dw)) * r;
+                    dw += w * dt;
+                    if (abs(x) >= 1) {
+                        if (r == 0.25) vx = v;
+                        else if (r == 1.25) vx = -v;
+                        vy = 0;
+                    } else if (abs(y) >= 1) {
+                        if (r == 0.25) vy = -v;
+                        else if (r == 1.25) vy = v;
+                        vx = 0;
+                    }
+                    polygon.translate((float) ((Math.cos(dw + w * dt) - Math.cos(dw)) * r * screen / 6), (float) ((Math.sin(dw + w * dt) - Math.sin(dw)) * r * screen / 6));
+                    polygon.rotate((float) (w * dt * 180 / PI));
                 }
-
-
-            } else {
-                if (abs(x) <= 1 && abs(y) <= 1) {
+                if (onFrom) {
                     onFrom = false;
                     onCross = true;
+                    //    System.out.println(p.getX() + " " + p.getY());
+                }
+            } else {
+                x = x + vx * dt;
+                y = y + vy * dt;
+                polygon.translate((float) (vx * dt * screen / 6), (float) (vy * dt * screen / 6));
+                if (onCross) {
+                    onCross = false;
+                    onTo = true;
+                }
+            }
                 /*    if (r == 0.25) {
                         vx = ch * -(Math.sin(dw + w * dt)) * v;
                         vy = ch * -(Math.cos(dw + w * dt)) * v;
@@ -143,52 +216,15 @@ public class Car {
                         y = y + vy * dt;
                         System.out.println(x + " " + y);
                     } else { */
-                    x = x + (Math.cos(dw + w * dt) - Math.cos(dw)) * r;
-                    y = y + (Math.sin(dw + w * dt) - Math.sin(dw)) * r;
-                    //    }
-                    dw += w * dt;
-                    if (abs(x) >= 1) {
-                        if (r == 0.25) vx = v;
-                        else if (r == 1.25) vx = -v;
-                        vy = 0;
-                        onCross = false;
-                        onTo = true;
-                    } else if (abs(y) >= 1) {
-                        if (r == 0.25) vy = -v;
-                        else if (r == 1.25) vy = v;
-                        vx = 0;
-                        onCross = false;
-                        onTo = true;
-                    }
-                    polygon.setRotation(polygon.getRotation() + (float) (w * dt * 180 / PI));
-                } else {
-                    x = x + vx * dt;
-                    y = y + vy * dt;
-                }
-            }
 
-            polygon.setPosition((float) ((x - width / 2) * screen / 6 + screen / 2), (float) ((y - height / 2) * screen / 6 + screen / 2));
+            //    polygon.setPosition((float) ((x - width / 2) * screen / 6 + screen / 2), (float) ((y - height / 2) * screen / 6 + screen / 2));
         }
 
         return this;
     }
 
-    public boolean toStop(double t) {
-        for (Lane l : cross.lanes) {
-            for (Car c : l.cars) {
-                if (this != c && (c.crashed || c.stopped)) {
-                    if (onCross) {
-                        //    if (x + (Math.cos(dw + w * dt) - Math.cos(dw)) * r) {
-                        //        return true;
-                        //    }
-                    } else {
-                        if (x - c.x < 0.9 && x - c.x > 0 || y - c.y < 0.9 && y - c.y > 0) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
+    public boolean toStop() {
+
         if ((laneFrom.n + 1) % 16 == laneTo.n) {
             for (Car c : laneFrom.cars) {
 
@@ -324,14 +360,20 @@ public class Car {
         return false;
     }
 
+    public boolean toCrash() {
+        for (Lane l : cross.lanes) {
+            for (Car c : l.cars) {
+                if (this != c && Intersector.overlapConvexPolygons(p, c.polygon)) return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isCrashed() {
-        for (Lane lane : cross.lanes) {
-            if (lane.n % 2 == 0) {
-                for (Car c : lane.cars) {
-                    if (this != c && Intersector.overlapConvexPolygons(polygon, c.polygon)) {
-                        crashed = true;
-                        return true;
-                    }
+        for (Lane l : cross.lanes) {
+            for (Car c : l.cars) {
+                if (this != c && Intersector.overlapConvexPolygons(polygon, c.polygon)) {
+                    return true;
                 }
             }
         }
