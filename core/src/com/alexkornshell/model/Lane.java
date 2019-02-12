@@ -1,7 +1,6 @@
 package com.alexkornshell.model;
 
 import java.util.ArrayList;
-import java.util.PriorityQueue;
 
 public class Lane {
     ArrayList<Car> cars;
@@ -13,7 +12,7 @@ public class Lane {
     double length;
     double width;
 
-    public Lane () {
+    public Lane() {
         this.cars = new ArrayList<Car>();
     }
 

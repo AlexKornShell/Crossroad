@@ -1,36 +1,35 @@
 package com.alexkornshell.model;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Random;
 
 import static java.lang.Math.abs;
 
 public class Crossroad {
-    //    ArrayList<Road> roads;
     ArrayList<Lane> lanes;
     int screen;
     int width;
     int height;
 
-    public Crossroad () {
+    public Crossroad() {
         this.lanes = new ArrayList<Lane>();
     }
 
-    public Crossroad (ArrayList<Lane> lanes, int screen) {
+    public Crossroad(ArrayList<Lane> lanes, int screen) {
         this.lanes = lanes;
         this.screen = screen;
         this.width = screen;
         this.height = screen;
     }
 
-    public void generateCar (Lane laneFrom) {
+    public void generateCar(Lane laneFrom) {
         Car car;
         Random rand = new Random();
         int r;
         boolean closed = false;
         for (Car c : laneFrom.cars) {
-            if (abs(c.x - laneFrom.fromX) < 1 && c.x != laneFrom.fromX || abs(c.y - laneFrom.fromY) < 1 && c.y != laneFrom.fromY) closed = true;    // Поправить, но норм. По факту длина машины 0.82
+            if (abs(c.x - laneFrom.fromX) < 1 && c.x != laneFrom.fromX || abs(c.y - laneFrom.fromY) < 1 && c.y != laneFrom.fromY)
+                closed = true;    // Поправить, но норм. По факту длина машины 0.82
         }
 
         if (laneFrom.n % 4 == 0) {
@@ -53,7 +52,7 @@ public class Crossroad {
 
     }
 
-    public void removeCar (Lane laneFrom) {
+    public void removeCar(Lane laneFrom) {
         int i = laneFrom.cars.size();
         for (Car c : laneFrom.cars) {
             if (abs(c.x) > 4 || abs(c.y) > 4) {
