@@ -26,32 +26,32 @@ public class CrossroadModel extends ApplicationAdapter {
     @Override
     public void create() {
         screen = 512;
-        carW = 24;
-        carH = 53;
+        carW = 22;
+        carH = 48;
 
         batch = new SpriteBatch();
         img = new Texture("core/assets/crossroad512.jpg");
         ver = new Texture("core/assets/ver.png");
         hor = new Texture("core/assets/hor.png");
-        car = new TextureRegion(new Texture(Gdx.files.internal("core/assets/car.png")), 0, 0, carW, carH);
-        carBlue = new TextureRegion(new Texture(Gdx.files.internal("core/assets/carBlue.png")), 0, 0, carW, carH + 1);
+        car = new TextureRegion(new Texture(Gdx.files.internal("core/assets/car2.png")), 0, 0, carW, carH);
+        carBlue = new TextureRegion(new Texture(Gdx.files.internal("core/assets/car2b.png")), 0, 0, carW, carH);
 
-        Lane lane1 = new Lane(1, 0.25, 0.25, 1, 3, 2, 0.5);
-        Lane lane3 = new Lane(3, 0.75, 0.75, 1, 3, 2, 0.5);
-        Lane lane2 = new Lane(2, 3, 1, 0.75, 0.75, 2, 0.5);
-        Lane lane4 = new Lane(4, 3, 1, 0.25, 0.25, 2, 0.5);
-        Lane lane5 = new Lane(5, 1, 3, -0.25, -0.25, 2, 0.5);
-        Lane lane7 = new Lane(7, 1, 3, -0.75, -0.75, 2, 0.5);
-        Lane lane6 = new Lane(6, 0.75, 0.75, -3, -1, 2, 0.5);
-        Lane lane8 = new Lane(8, 0.25, 0.25, -3, -1, 2, 0.5);
-        Lane lane9 = new Lane(9, -0.25, -0.25, -1, -3, 2, 0.5);
-        Lane lane11 = new Lane(11, -0.75, -0.75, -1, -3, 2, 0.5);
-        Lane lane10 = new Lane(10, -3, -1, -0.75, -0.75, 2, 0.5);
-        Lane lane12 = new Lane(12, -3, -1, -0.25, -0.25, 2, 0.5);
-        Lane lane13 = new Lane(13, -1, -3, 0.25, 0.25, 2, 0.5);
-        Lane lane15 = new Lane(15, -1, -3, 0.75, 0.75, 2, 0.5);
-        Lane lane14 = new Lane(14, -0.75, -0.75, 3, 1, 2, 0.5);
-        Lane lane0 = new Lane(0, -0.25, -0.25, 3, 1, 2, 0.5);
+        Lane lane1 = new Lane(1, 0.25, 0.25, 1, 3.5, 2, 0.5);
+        Lane lane3 = new Lane(3, 0.75, 0.75, 1, 3.5, 2, 0.5);
+        Lane lane2 = new Lane(2, 3.5, 1, 0.75, 0.75, 2, 0.5);
+        Lane lane4 = new Lane(4, 3.5, 1, 0.25, 0.25, 2, 0.5);
+        Lane lane5 = new Lane(5, 1, 3.5, -0.25, -0.25, 2, 0.5);
+        Lane lane7 = new Lane(7, 1, 3.5, -0.75, -0.75, 2, 0.5);
+        Lane lane6 = new Lane(6, 0.75, 0.75, -3.5, -1, 2, 0.5);
+        Lane lane8 = new Lane(8, 0.25, 0.25, -3.5, -1, 2, 0.5);
+        Lane lane9 = new Lane(9, -0.25, -0.25, -1, -3.5, 2, 0.5);
+        Lane lane11 = new Lane(11, -0.75, -0.75, -1, -3.5, 2, 0.5);
+        Lane lane10 = new Lane(10, -3.5, -1, -0.75, -0.75, 2, 0.5);
+        Lane lane12 = new Lane(12, -3.5, -1, -0.25, -0.25, 2, 0.5);
+        Lane lane13 = new Lane(13, -1, -3.5, 0.25, 0.25, 2, 0.5);
+        Lane lane15 = new Lane(15, -1, -3.5, 0.75, 0.75, 2, 0.5);
+        Lane lane14 = new Lane(14, -0.75, -0.75, 3.5, 1, 2, 0.5);
+        Lane lane0 = new Lane(0, -0.25, -0.25, 3.5, 1, 2, 0.5);
 
         ArrayList<Lane> lanes = new ArrayList<Lane>();
         lanes.add(lane0);
@@ -98,7 +98,7 @@ public class CrossroadModel extends ApplicationAdapter {
         for (Lane lane : cross.lanes) {
             for (Car c : lane.cars) {
                 batch.draw(car, c.polygon.getX(), c.polygon.getY(), c.polygon.getOriginX(), c.polygon.getOriginY(), carW, carH, c.polygon.getScaleX(), c.polygon.getScaleY(), c.polygon.getRotation());
-                //	batch.draw(carBlue, c.p.getX(), c.p.getY(), c.p.getOriginX(), c.p.getOriginY(), carW, carH, c.p.getScaleX(), c.p.getScaleY(), c.p.getRotation());
+                	batch.draw(carBlue, c.p.getX(), c.p.getY(), c.p.getOriginX(), c.p.getOriginY(), carW, carH, c.p.getScaleX(), c.p.getScaleY(), c.p.getRotation());
             }
         }
         batch.end();

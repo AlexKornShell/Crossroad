@@ -47,9 +47,9 @@ public class Car {
 
         this.cross = crossroad;
         this.screen = crossroad.screen;
-        carW = 24;
-        carH = 53;
-        t = 0.16;
+        carW = 22;
+        carH = 48;
+        t = 0.17;
         this.width = (double) carW * 6 / screen;
         this.height = (double) carH * 6 / screen;
         this.laneFrom = laneFrom;
@@ -118,7 +118,7 @@ public class Car {
         vxp = vx;
         vyp = vy;
 
-        p.translate((float) (vxp * 3 * t * screen / 6), (float) (vyp * 3 * t * screen / 6));
+        p.translate((float) (vxp * 1 * t * screen / 6), (float) (vyp * 1 * t * screen / 6));
 
     }
 
@@ -130,9 +130,10 @@ public class Car {
 
         if (!crashed) crashed = isCrashed();
 
-        if (onFrom && (abs(x) - abs(laneFrom.toX) < height / 2 + 0.2 && abs(x) - abs(laneFrom.toX) > 0 || abs(y) - abs(laneFrom.toY) < height / 2 + 0.2 && abs(y) - abs(laneFrom.toY) > 0)) {
-            stopped = toStop();
-            if (!stopped) stopped = toCrash();
+        if (onFrom && (abs(x) - abs(laneFrom.toX) < height / 2 + 0.2 && abs(x) - abs(laneFrom.toX) > height / 2 || abs(y) - abs(laneFrom.toY) < height / 2 + 0.2 && abs(y) - abs(laneFrom.toY) > height / 2)) {
+                stopped = toStopWithMain();//OnEqual();
+                if (!stopped) stopped = toCrash();
+            //stopped = toCrash();
         } else {
             stopped = toCrash();
         }
@@ -150,203 +151,6 @@ public class Car {
         }
 
         return this;
-    }
-
-    public boolean toStop() {
-        if ((laneFrom.n + 1) % 16 == laneTo.n) {
-            if (vy != 0) {
-                double dt = (laneFrom.toY - y) / vy + PI / (2 * abs(w));
-                for (Car c : cross.lanes.get((laneFrom.n + 4) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneTo.fromX - c.x) / c.vx + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        } else if ((laneFrom.n + 13) % 16 == laneTo.n) {
-            if (vx != 0) {
-            /*    double dt = (laneTo.fromX - x) / vx;
-                for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toY - c.y) / c.vy + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hx " + c);
-                            return true;
-                        } else if (c.r == 0.25 && ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hx " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 14) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toY - c.y) / c.vy + (c.height + 0.2) / abs(c.v) > dt)) {
-                                System.out.println(this + " Hx " + c);
-                                return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * 4 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                                System.out.println(this + " Hx " + c);
-                                return true;
-                        }
-                    }
-                }*/
-            } else if (vy != 0) {
-                double dt = (laneTo.fromY - y) / vy;
-                for (Car c : cross.lanes.get((laneFrom.n + 4) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneTo.fromX - c.x) / c.vx + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 6) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toX - c.x) / c.vx + (0.5 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * 2 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toX - c.x) / c.vx + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        } else if (c.r == 0.25 && ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 14) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toX - c.x) / vx + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * 4 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-            }
-        } else if ((laneFrom.n + 9) % 16 == laneTo.n) {
-            if (vx != 0) {
-            /*    double dt = (laneTo.fromX - x) / vx;
-                for (Car c : cross.lanes.get((laneFrom.n + 10) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toY - c.y) / c.vy + (0.5 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hx " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toY - c.y) / c.vy + (0.5 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hx " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * 2 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hx " + c);
-                            return true;
-                        }
-                    }
-                }*/
-            } else if (vy != 0) {
-                double dt = (laneTo.fromY - y) / vy;
-                for (Car c : cross.lanes.get((laneFrom.n + 10) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toX - c.x) / c.vx + (0.5 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toX - c.x) / c.vx + (0.5 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * 2 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-            }
-        } else if ((laneFrom.n + 5) % 16 == laneTo.n) {
-            if (vx != 0) {
-                double dt = (laneFrom.toX - x) / vx + PI / (2 * abs(w));
-            /*    for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneTo.fromY - c.y) / c.vy + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }*/
-                for (Car c : cross.lanes.get((laneFrom.n + 6) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toX - c.x) / c.vx + (0.5 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 8) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toX - c.x) / c.vx + (1 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * abs(c.w)) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-            } else if (vy != 0) {
-                double dt = (laneFrom.toY - y) / vy + PI / (2 * abs(w));
-                for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneTo.fromX - c.x) / c.vx + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 6) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toY - c.y) / c.vy + (0.5 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 8) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toY - c.y) / c.vy + (1 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * abs(c.w)) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     private void moveC(double dt) {
@@ -414,171 +218,391 @@ public class Car {
         }
     }
 
-    public boolean toStopOnEqual() {
-        if ((laneFrom.n + 1) % 16 == laneTo.n) {
+    public boolean toStopWithMain() {
+        if (onFrom && (abs(x) - abs(laneFrom.toX) < height / 2 + 0.2 && abs(x) - abs(laneFrom.toX) > height / 2 || abs(y) - abs(laneFrom.toY) < height / 2 + 0.2 && abs(y) - abs(laneFrom.toY) > height / 2)) {
+            if ((laneFrom.n + 1) % 16 == laneTo.n) {
+                if (vy != 0) {
+                    double dt = (laneFrom.toY - y) / vy + PI / (2 * abs(w));
+                    for (Car c : cross.lanes.get((laneFrom.n + 4) % 16).cars) {
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneTo.fromX - c.x) / c.vx + (-c.height / 2 - 0.5) / abs(c.v) >= dt + (height / 2) / abs(v))
+                                    || ((c.laneTo.fromX - c.x) / c.vx + (c.height / 2 + 0.5) / abs(v) <= dt + (-height / 2) / abs(v))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            } else if ((laneFrom.n + 13) % 16 == laneTo.n) {
+                if (vy != 0) {
+                    double dt = (laneTo.fromY - y) / vy;
+                    for (Car c : cross.lanes.get((laneFrom.n + 4) % 16).cars) {
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneTo.fromX - c.x) / c.vx + (-c.height / 2 - 0.5) / abs(c.v) >= dt - dt + (height / 2 + 0.5) / abs(v))
+                                    || ((c.laneTo.fromX - c.x) / c.vx + (c.height / 2) / abs(v) <= dt - dt + (-height / 2) / abs(v))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 6) % 16).cars) {
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneTo.fromX - c.x) / c.vx + (-c.height / 2 - 0.5) / abs(c.v) >= dt - dt + (height / 2 + 1) / abs(v))
+                                    || ((c.laneTo.fromX - c.x) / c.vx + (c.height / 2) / abs(v) <= dt - dt + (-height / 2 + 0.5) / abs(v))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2) / abs(c.v) >= (dt + (height / 2) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 0.5) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v)))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            } else if (c.r == 0.25 && c.onFrom && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2) / abs(c.v) >= (dt + (height / 2) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 0.5) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v)))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            } // Здесь если автомобиль уже выехал на перекрёсток и поворачивает, то пока успеет и без проверки
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 14) % 16).cars) {
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 0.5) / abs(c.v) <= (dt + (-height / 2 - 1) / abs(v)))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            } else if (c.r == 1.25 && c.onFrom && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 0.5) / abs(c.v) <= (dt + (-height / 2 - 1) / abs(v)))) && !c.stopped) { // Приближение!!
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            } else if ((laneFrom.n + 9) % 16 == laneTo.n) {
+                if (vy != 0) {
+                    double dt = (laneTo.fromY - y) / vy;
+                    for (Car c : cross.lanes.get((laneFrom.n + 2) % 16).cars) {
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneTo.fromX - c.x) / c.vx + (-c.height / 2 - 1) / abs(c.v) >= dt - dt + (height / 2 + 0.5) / abs(v))
+                                    || ((c.laneTo.fromX - c.x) / c.vx + (c.height / 2 - 0.5) / abs(v) <= dt - dt + (-height / 2) / abs(v))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 4) % 16).cars) {
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneTo.fromX - c.x) / c.vx + (-c.height / 2 - 1) / abs(c.v) >= dt - dt + (height / 2 + 1) / abs(v))
+                                    || ((c.laneTo.fromX - c.x) / c.vx + (c.height / 2 - 0.5) / abs(v) <= dt - dt + (-height / 2 + 0.5) / abs(v))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            } else if (c.r == 1.25 && c.onFrom && !(((c.laneFrom.toX - c.x) / c.vx + PI / (2 * abs(c.w)) + (-c.height / 2) / abs(c.v) >= (dt + (height / 2 + 0.5) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * abs(c.w)) + (c.height / 2) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v)))) && !c.stopped) { // Приближение!!
+                                System.out.println(this + " Hx " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 10) % 16).cars) {
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 1) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v)))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 1) / abs(c.v) <= (dt + (-height / 2 - 1) / abs(v)))) && !c.stopped) {
+                                System.out.println(this + " Hx " + c);
+                                return true;
+                            } else if (c.r == 1.25 && c.onFrom && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * 2 * abs(c.w)) + (c.height / 2) / abs(c.v) <= (dt + (-height / 2 - 1.2) / abs(v)))) && !c.stopped) { // Приближение!!
+                                System.out.println(this + " Hx " + c);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            } else if ((laneFrom.n + 5) % 16 == laneTo.n) {     // Правим тут!!!!
+                if (vx != 0) {
+                    double dt = (laneFrom.toX - x) / vx + PI / (2 * abs(w));
+                    for (Car c : cross.lanes.get((laneFrom.n + 6) % 16).cars) { // Неплохо
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 1) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v)))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 8) % 16).cars) {
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 1) / abs(c.v) <= (dt - PI / (2 * 2 * abs(w)) + (-height / 2 - 0.2) / abs(v)))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                } else if (vy != 0) {
+                    double dt = (laneFrom.toY - y) / vy + PI / (2 * abs(w));
+                    for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 0.85) / abs(c.v) >= (dt - PI / (2 * 2 * abs(c.w)) + (height / 2 + 0.2) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + (c.height / 2 + 2) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v)))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            } else if (c.r == 1.25 && c.onFrom && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 1) / abs(c.v) >= (dt + (height / 2 - 1) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * abs(c.w)) + (c.height / 2 - 1) / abs(c.v) <= (dt - PI / (2 * abs(w)) + (-height / 2 + 1) / abs(v)))) && !c.stopped) { // Приближение!!
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 6) % 16).cars) { // Неплохо
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + (c.height / 2 + 1) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v)))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 8) % 16).cars) { // Править!!!
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + (c.height / 2 + 1.5) / abs(c.v) <= (dt - PI / (2 * 2 * abs(w)) + (-height / 2 - 0.2) / abs(v)))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 2) % 16).cars) {
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 1) / abs(c.v) >= (dt - PI / (2 * abs(w)) + (height / 2 + 0.5) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + (c.height / 2 + 1.5) / abs(c.v) <= (dt - PI / (2 * abs(w)) + (-height / 2) / abs(v)))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 4) % 16).cars) { // Примерно!!!
+                        if (c.onFrom || c.onCross) {
+                            if (c.r == 0 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + (c.height / 2 + 1.5) / abs(c.v) <= (dt - PI / (2 * abs(w)) + (-height / 2 + 0.5) / abs(v)))) && !c.stopped) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            } else if (c.r == 1.25 && c.onFrom && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * 2 * abs(c.w)) + (c.height / 2 + 0.2) / abs(c.v) <= (dt - PI / (2 * 2 * abs(w)) + (-height / 2 - 0.2) / abs(v)))) && !c.stopped) { // Приближение!!
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
             return false;
-        } else if ((laneFrom.n + 13) % 16 == laneTo.n) {
-            if (vx != 0) {
-                double dt = (laneTo.fromX - x) / vx;
-                for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toY - c.y) / c.vy + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hx " + c);
-                            return true;
-                        } else if (c.r == 0.25 && ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hx " + c);
-                            return true;
+        } else return false;
+    }
+
+    public boolean toStopOnEqual() {
+        if (onFrom && (abs(x) - abs(laneFrom.toX) < height / 2 + 0.2 && abs(x) - abs(laneFrom.toX) > height / 2 || abs(y) - abs(laneFrom.toY) < height / 2 + 0.2 && abs(y) - abs(laneFrom.toY) > height / 2)) {
+            if ((laneFrom.n + 1) % 16 == laneTo.n) {
+                return false;
+            } else if ((laneFrom.n + 13) % 16 == laneTo.n) {
+                if (vx != 0) {
+                    double dt = (laneTo.fromX - x) / vx;
+                    for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
+                        if (c.onFrom) {
+                            if (c.r == 0 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2) / abs(c.v) >= (dt + (height / 2) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + (c.height / 2 + 0.5) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v))))) {
+                                System.out.println(this + " Hx " + c);
+                                return true;
+                            } else if (c.r == 0.25 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2) / abs(c.v) >= (dt + (height / 2) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + (c.height / 2 + 0.5) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v))))) { // Приближени!!
+                                System.out.println(this + " Hx " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 14) % 16).cars) {
+                        if (c.onFrom) {
+                            if (c.r == 0 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + (c.height / 2 + 0.5) / abs(c.v) <= (dt + (-height / 2 - 1) / abs(v))))) {
+                                System.out.println(this + " Hx " + c);
+                                return true;
+                            } else if (c.r == 1.25 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + (c.height / 2 + 0.5) / abs(c.v) <= (dt + (-height / 2 - 1) / abs(v))))) { // Приближение!!
+                                System.out.println(this + " Hx " + c);
+                                return true;
+                            }
+                        }
+                    }
+                } else if (vy != 0) {
+                    double dt = (laneTo.fromY - y) / vy;
+                    for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
+                        if (c.onFrom) {
+                            if (c.r == 0 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2) / abs(c.v) >= (dt + (height / 2) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 0.5) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v))))) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            } else if (c.r == 0.25 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2) / abs(c.v) >= (dt + (height / 2) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 0.5) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v))))) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 14) % 16).cars) {
+                        if (c.onFrom) {
+                            if (c.r == 0 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 0.5) / abs(c.v) <= (dt + (-height / 2 - 1) / abs(v))))) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            } else if (c.r == 1.25 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 0.5) / abs(c.v) <= (dt + (-height / 2 - 1) / abs(v))))) { // Приближение!!
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
                         }
                     }
                 }
-                for (Car c : cross.lanes.get((laneFrom.n + 14) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toY - c.y) / c.vy + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hx " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * 4 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hx " + c);
-                            return true;
+            } else if ((laneFrom.n + 9) % 16 == laneTo.n) {
+                if (vx != 0) {
+                    double dt = (laneTo.fromX - x) / vx;
+                    for (Car c : cross.lanes.get((laneFrom.n + 10) % 16).cars) {
+                        if (c.onFrom) {
+                            if (c.r == 0 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + (c.height / 2 + 1) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v))))) {
+                                System.out.println(this + " Hx " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
+                        if (c.onFrom) {
+                            if (c.r == 0 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + (c.height / 2 + 1) / abs(c.v) <= (dt + (-height / 2 - 1) / abs(v))))) {
+                                System.out.println(this + " Hx " + c);
+                                return true;
+                            } else if (c.r == 1.25 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * 2 * abs(c.w)) + (c.height / 2) / abs(c.v) <= (dt + (-height / 2 - 1.2) / abs(v))))) { // Приближение!!
+                                System.out.println(this + " Hx " + c);
+                                return true;
+                            }
+                        }
+                    }
+                } else if (vy != 0) {
+                    double dt = (laneTo.fromY - y) / vy;
+                    for (Car c : cross.lanes.get((laneFrom.n + 10) % 16).cars) {
+                        if (c.onFrom) {
+                            if (c.r == 0 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 1) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v))))) {
+                                System.out.println(this + " Hx " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
+                        if (c.onFrom) {
+                            if (c.r == 0 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 1) / abs(c.v) <= (dt + (-height / 2 - 1) / abs(v))))) {
+                                System.out.println(this + " Hx " + c);
+                                return true;
+                            } else if (c.r == 1.25 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * 2 * abs(c.w)) + (c.height / 2) / abs(c.v) <= (dt + (-height / 2 - 1.2) / abs(v))))) { // Приближение!!
+                                System.out.println(this + " Hx " + c);
+                                return true;
+                            }
                         }
                     }
                 }
-            } else if (vy != 0) {
-                double dt = (laneTo.fromY - y) / vy;
-                for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toX - c.x) / c.vx + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        } else if (c.r == 0.25 && ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
+            } else if ((laneFrom.n + 5) % 16 == laneTo.n) { // Всё в приближении!!!
+                if (vx != 0) {
+                    double dt = (laneFrom.toX - x) / vx + PI / (2 * abs(w));
+                    for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
+                        if (c.onFrom) {
+                            if (c.r == 0 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2 + 0.85) / abs(c.v) >= (dt - PI / (2 * 2 * abs(c.w)) + (height / 2 + 0.2) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 2) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v))))) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            } else if (c.r == 1.25 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2 + 1) / abs(c.v) >= (dt + (height / 2 - 1) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * abs(c.w)) + (c.height / 2 - 1) / abs(c.v) <= (dt - PI / (2 * abs(w)) + (-height / 2 + 1) / abs(v))))) { // Приближение!!
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
                         }
                     }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 14) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toX - c.x) / vx + (c.height + 0.2) / abs(c.v) > dt)) {
+                    for (Car c : cross.lanes.get((laneFrom.n + 6) % 16).cars) { // Неплохо
+                        if (c.onFrom) {
+                            if (c.r == 0 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 1) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v))))) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 8) % 16).cars) {
+                        if (c.onFrom) {
+                            if (c.r == 0 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toX - c.x) / c.vx + (c.height / 2 + 1) / abs(c.v) <= (dt - PI / (2 * 2 * abs(w)) + (-height / 2 - 0.2) / abs(v))))) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            } /*else if (c.r == 1.25 && !(((c.laneFrom.toX - c.x) / c.vx + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                || ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * abs(c.w)) + (c.height / 2 - 0.5) / abs(c.v) <= (dt - PI / (2 * abs(w)) + (-height / 2 + 0.5) / abs(v))))) { // Приближение!!
                             System.out.println(this + " Hy " + c);
                             return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * 4 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
+                        }*/
+                        }
+                    }
+                } else if (vy != 0) {
+                    double dt = (laneFrom.toY - y) / vy + PI / (2 * abs(w));
+                    for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
+                        if (c.onFrom) {
+                            if (c.r == 0 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 0.85) / abs(c.v) >= (dt - PI / (2 * 2 * abs(c.w)) + (height / 2 + 0.2) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + (c.height / 2 + 2) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v))))) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            } else if (c.r == 1.25 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 1) / abs(c.v) >= (dt + (height / 2 - 1) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * abs(c.w)) + (c.height / 2 - 1) / abs(c.v) <= (dt - PI / (2 * abs(w)) + (-height / 2 + 1) / abs(v))))) { // Приближение!!
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 6) % 16).cars) { // Неплохо
+                        if (c.onFrom) {
+                            if (c.r == 0 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + (c.height / 2 + 1) / abs(c.v) <= (dt + (-height / 2 - 0.5) / abs(v))))) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            }
+                        }
+                    }
+                    for (Car c : cross.lanes.get((laneFrom.n + 8) % 16).cars) {
+                        if (c.onFrom) {
+                            if (c.r == 0 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                    || ((c.laneFrom.toY - c.y) / c.vy + (c.height / 2 + 1) / abs(c.v) <= (dt - PI / (2 * 2 * abs(w)) + (-height / 2 - 0.2) / abs(v))))) {
+                                System.out.println(this + " Hy " + c);
+                                return true;
+                            } /*else if (c.r == 1.25 && !(((c.laneFrom.toY - c.y) / c.vy + (-c.height / 2 + 0.5) / abs(c.v) >= (dt + (height / 2 - 0.5) / abs(v)))
+                                || ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * abs(c.w)) + (c.height / 2 - 0.5) / abs(c.v) <= (dt - PI / (2 * abs(w)) + (-height / 2 + 0.5) / abs(v))))) { // Приближение!!
                             System.out.println(this + " Hy " + c);
                             return true;
+                        }*/
                         }
                     }
                 }
             }
-        } else if ((laneFrom.n + 9) % 16 == laneTo.n) {
-            if (vx != 0) {
-                double dt = (laneTo.fromX - x) / vx;
-                for (Car c : cross.lanes.get((laneFrom.n + 10) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toY - c.y) / c.vy + (0.5 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hx " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toY - c.y) / c.vy + (0.5 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hx " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * 2 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hx " + c);
-                            return true;
-                        }
-                    }
-                }
-            } else if (vy != 0) {
-                double dt = (laneTo.fromY - y) / vy;
-                for (Car c : cross.lanes.get((laneFrom.n + 10) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toX - c.x) / c.vx + (0.5 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toX - c.x) / c.vx + (0.5 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * 2 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-            }
-        } else if ((laneFrom.n + 5) % 16 == laneTo.n) {
-            if (vx != 0) {
-                double dt = (laneFrom.toX - x) / vx + PI / (2 * abs(w));
-                for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneTo.fromY - c.y) / c.vy + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 6) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toX - c.x) / c.vx + (0.5 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 8) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toX - c.x) / c.vx + (1 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * abs(c.w)) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-            } else if (vy != 0) {
-                double dt = (laneFrom.toY - y) / vy + PI / (2 * abs(w));
-                for (Car c : cross.lanes.get((laneFrom.n + 12) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneTo.fromX - c.x) / c.vx + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toX - c.x) / c.vx + PI / (2 * abs(c.w)) + (c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 6) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toY - c.y) / c.vy + (0.5 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-                for (Car c : cross.lanes.get((laneFrom.n + 8) % 16).cars) {
-                    if (c.onFrom) {
-                        if (c.r == 0 && ((c.laneFrom.toY - c.y) / c.vy + (1 + c.height + 0.2) / abs(c.v) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        } else if (c.r == 1.25 && ((c.laneFrom.toY - c.y) / c.vy + PI / (2 * abs(c.w)) > dt)) {
-                            System.out.println(this + " Hy " + c);
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
+            return false;
+        } else return false;
     }
 
     private boolean toCrash() {

@@ -33,19 +33,20 @@ public class Crossroad {
         }
 
         if (laneFrom.n % 4 == 0) {
-            r = rand.nextInt(200);
+            r = rand.nextInt(100);
             if (r == 0 && !closed) {
                 r = rand.nextInt(2);
-                if (r == 0) car = new Car(this, laneFrom, lanes.get((laneFrom.n + 5) % 16), 5);
-                else car = new Car(this, laneFrom, lanes.get((laneFrom.n + 9) % 16), 5);
+            //   if (r == 0) car = new Car(this, laneFrom, lanes.get((laneFrom.n + 5) % 16), 2);
+            //    else
+                car = new Car(this, laneFrom, lanes.get((laneFrom.n + 9) % 16), 2);
                 laneFrom.cars.add(car);
             }
         } else {
-            r = rand.nextInt(200);
+            r = rand.nextInt(100);
             if (r == 0 && !closed) {
                 r = rand.nextInt(2);
-                if (r == 0) car = new Car(this, laneFrom, lanes.get((laneFrom.n + 13) % 16), 5);
-                else car = new Car(this, laneFrom, lanes.get(laneFrom.n + 1), 5);
+                if (r == 0) car = new Car(this, laneFrom, lanes.get((laneFrom.n + 13) % 16), 2);
+                else car = new Car(this, laneFrom, lanes.get(laneFrom.n + 1), 2);
                 laneFrom.cars.add(car);
             }
         }
