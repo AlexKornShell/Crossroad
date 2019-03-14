@@ -10,68 +10,57 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import java.util.ArrayList;
 
 public class CrossroadModel extends ApplicationAdapter {
+
     Crossroad cross;
     SpriteBatch batch;
     Texture img;
     Texture ver;
     Texture hor;
-    TextureRegion car;
-    TextureRegion carBlue;
+    TextureRegion carR;
+    TextureRegion carB;
 
     int screen;
-    int carW;
-    int carH;
-    int t = 0;
+
+    public CrossroadModel(int screen) {
+        this.screen = screen;
+    }
 
     @Override
     public void create() {
-        screen = 512;
-        carW = 22;
-        carH = 48;
+
+        int probability = 150;
+        int left = -1;
+        int right = -1;
+
+        int carW = 22;
+        int carH = 48;
 
         batch = new SpriteBatch();
-        img = new Texture("core/assets/crossroad512.jpg");
+        img = new Texture("core/assets/crossroad"+screen+".jpg");
         ver = new Texture("core/assets/ver.png");
         hor = new Texture("core/assets/hor.png");
-        car = new TextureRegion(new Texture(Gdx.files.internal("core/assets/car2.png")), 0, 0, carW, carH);
-        carBlue = new TextureRegion(new Texture(Gdx.files.internal("core/assets/car2b.png")), 0, 0, carW, carH);
-
-        Lane lane1 = new Lane(1, 0.25, 0.25, 1, 3.5, 2, 0.5);
-        Lane lane3 = new Lane(3, 0.75, 0.75, 1, 3.5, 2, 0.5);
-        Lane lane2 = new Lane(2, 3.5, 1, 0.75, 0.75, 2, 0.5);
-        Lane lane4 = new Lane(4, 3.5, 1, 0.25, 0.25, 2, 0.5);
-        Lane lane5 = new Lane(5, 1, 3.5, -0.25, -0.25, 2, 0.5);
-        Lane lane7 = new Lane(7, 1, 3.5, -0.75, -0.75, 2, 0.5);
-        Lane lane6 = new Lane(6, 0.75, 0.75, -3.5, -1, 2, 0.5);
-        Lane lane8 = new Lane(8, 0.25, 0.25, -3.5, -1, 2, 0.5);
-        Lane lane9 = new Lane(9, -0.25, -0.25, -1, -3.5, 2, 0.5);
-        Lane lane11 = new Lane(11, -0.75, -0.75, -1, -3.5, 2, 0.5);
-        Lane lane10 = new Lane(10, -3.5, -1, -0.75, -0.75, 2, 0.5);
-        Lane lane12 = new Lane(12, -3.5, -1, -0.25, -0.25, 2, 0.5);
-        Lane lane13 = new Lane(13, -1, -3.5, 0.25, 0.25, 2, 0.5);
-        Lane lane15 = new Lane(15, -1, -3.5, 0.75, 0.75, 2, 0.5);
-        Lane lane14 = new Lane(14, -0.75, -0.75, 3.5, 1, 2, 0.5);
-        Lane lane0 = new Lane(0, -0.25, -0.25, 3.5, 1, 2, 0.5);
+        carR = new TextureRegion(new Texture(Gdx.files.internal("core/assets/car2.png")), 0, 0, carW, carH);
+        carB = new TextureRegion(new Texture(Gdx.files.internal("core/assets/car2b.png")), 0, 0, carW, carH);
 
         ArrayList<Lane> lanes = new ArrayList<Lane>();
-        lanes.add(lane0);
-        lanes.add(lane1);
-        lanes.add(lane2);
-        lanes.add(lane3);
-        lanes.add(lane4);
-        lanes.add(lane5);
-        lanes.add(lane6);
-        lanes.add(lane7);
-        lanes.add(lane8);
-        lanes.add(lane9);
-        lanes.add(lane10);
-        lanes.add(lane11);
-        lanes.add(lane12);
-        lanes.add(lane13);
-        lanes.add(lane14);
-        lanes.add(lane15);
+        lanes.add(new Lane(0, -0.25, -0.25, 4.5, 1, 3.5, 0.5));
+        lanes.add(new Lane(1, 0.25, 0.25, 1, 4.5, 3.5, 0.5));
+        lanes.add(new Lane(2, 4.5, 1, 0.75, 0.75, 3.5, 0.5));
+        lanes.add(new Lane(3, 0.75, 0.75, 1, 4.5, 3.5, 0.5));
+        lanes.add(new Lane(4, 4.5, 1, 0.25, 0.25, 3.5, 0.5));
+        lanes.add(new Lane(5, 1, 4.5, -0.25, -0.25, 3.5, 0.5));
+        lanes.add(new Lane(6, 0.75, 0.75, -4.5, -1, 3.5, 0.5));
+        lanes.add(new Lane(7, 1, 4.5, -0.75, -0.75, 3.5, 0.5));
+        lanes.add(new Lane(8, 0.25, 0.25, -4.5, -1, 3.5, 0.5));
+        lanes.add(new Lane(9, -0.25, -0.25, -1, -4.5, 3.5, 0.5));
+        lanes.add(new Lane(10, -4.5, -1, -0.75, -0.75, 3.5, 0.5));
+        lanes.add(new Lane(11, -0.75, -0.75, -1, -4.5, 3.5, 0.5));
+        lanes.add(new Lane(12, -4.5, -1, -0.25, -0.25, 3.5, 0.5));
+        lanes.add(new Lane(13, -1, -4.5, 0.25, 0.25, 3.5, 0.5));
+        lanes.add(new Lane(14, -0.75, -0.75, 4.5, 1, 3.5, 0.5));
+        lanes.add(new Lane(15, -1, -4.5, 0.75, 0.75, 3.5, 0.5));
 
-        cross = new Crossroad(lanes, screen);
+        cross = new Crossroad(lanes, screen, probability, left, right);
 
         for (Lane lane : cross.lanes) {
             if (lane.n % 2 == 0) cross.generateCar(lane);
@@ -97,18 +86,17 @@ public class CrossroadModel extends ApplicationAdapter {
         //	batch.draw(hor, 0, 1 * 256 / 3 + 256);
         for (Lane lane : cross.lanes) {
             for (Car c : lane.cars) {
-                batch.draw(car, c.polygon.getX(), c.polygon.getY(), c.polygon.getOriginX(), c.polygon.getOriginY(), carW, carH, c.polygon.getScaleX(), c.polygon.getScaleY(), c.polygon.getRotation());
-                	batch.draw(carBlue, c.p.getX(), c.p.getY(), c.p.getOriginX(), c.p.getOriginY(), carW, carH, c.p.getScaleX(), c.p.getScaleY(), c.p.getRotation());
+                batch.draw(carR, c.polygon.getX(), c.polygon.getY(), c.polygon.getOriginX(), c.polygon.getOriginY(), c.carW, c.carH, c.polygon.getScaleX(), c.polygon.getScaleY(), c.polygon.getRotation());
+                //	batch.draw(carB, c.p.getX(), c.p.getY(), c.p.getOriginX(), c.p.getOriginY(), c.carW, c.carH, c.p.getScaleX(), c.p.getScaleY(), c.p.getRotation());
             }
         }
         batch.end();
 
         for (Lane lane : cross.lanes) {
-            if (lane.n % 2 == 0 && lane.cars.size() < 2) cross.generateCar(lane);
-        }
-
-        for (Lane lane : cross.lanes) {
-            if (lane.n % 2 == 0) cross.removeCar(lane);
+            if (lane.n % 2 == 0) {
+                cross.generateCar(lane);
+                cross.removeCar(lane);
+            }
         }
 
     }
