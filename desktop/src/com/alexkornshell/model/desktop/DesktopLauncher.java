@@ -6,11 +6,12 @@ import com.alexkornshell.model.CrossroadModel;
 
 public class DesktopLauncher {
     public static void main(String[] arg) {
-        int screen = 512;
+        int screen = 504;
+        int controls = 200;
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-        config.width = screen;
+        config.width = screen + controls;
         config.height = screen;
 
-        new LwjglApplication(new CrossroadModel(screen), config);
+        new LwjglApplication(new CrossroadModel(screen, controls), config);
     }
 }
