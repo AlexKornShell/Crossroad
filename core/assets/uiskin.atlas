@@ -198,3 +198,24 @@ white
   orig: 3, 3
   offset: 0, 0
   index: -1
+play
+  rotate: false
+  xy: 176, 19
+  size: 30, 30
+  orig: 30, 30
+  offset: 0, 0
+  index: -1
+pause
+  rotate: false
+  xy: 207, 19
+  size: 30, 30
+  orig: 30, 30
+  offset: 0, 0
+  index: -1
+stop
+  rotate: false
+  xy: 145, 1
+  size: 30, 30
+  orig: 30, 30
+  offset: 0, 0
+  index: -1

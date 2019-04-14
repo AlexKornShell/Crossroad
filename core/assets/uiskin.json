@@ -66,6 +66,20 @@
 			downFontColor: red
 		}
 	},
+	com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
+		play: {
+			imageUp: play,
+			imageDown: play
+		},
+		pause: {
+			imageUp: pause,
+			imageDown: pause
+		},
+		stop: {
+			imageUp: stop,
+			imageDown: stop
+		}
+	},
 	com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
 		default: {
 			vScroll: default-scroll,

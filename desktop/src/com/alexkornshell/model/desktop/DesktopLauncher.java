@@ -11,6 +11,7 @@ public class DesktopLauncher {
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
         config.width = screen + controls;
         config.height = screen;
+        config.forceExit = false;
 
         new LwjglApplication(new CrossroadModel(screen, controls), config);
     }
