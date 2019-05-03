@@ -5,9 +5,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -16,8 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
@@ -51,25 +46,33 @@ public class CrossroadModel extends ApplicationAdapter {
         viewport = new FitViewport(camera.viewportWidth / PPM, camera.viewportHeight / PPM, camera);
         renderer = new Box2DDebugRenderer();
         //    batch = new SpriteBatch();
-    //    batch.setProjectionMatrix(camera.combined);
+        //    batch.setProjectionMatrix(camera.combined);
 
         world = new World(new Vector2(0, 0), true);
-        world.setContactListener(new ContactListener(){
+        world.setContactListener(new ContactListener() {
             @Override
             public void beginContact(Contact contact) {
-                contact.getFixtureA().getBody().setLinearVelocity(0,0);
-                contact.getFixtureB().getBody().setLinearVelocity(0,0);
-                System.out.println(contact.getFixtureA().getBody().getPosition() + " " + contact.getFixtureA().getBody().getWorldCenter());
-                System.out.println(((Car) contact.getFixtureA().getBody().getUserData()).x + " "+ ((Car) contact.getFixtureA().getBody().getUserData()).carP.getX() + " " + ((Car) contact.getFixtureA().getBody().getUserData()).width);
-                System.out.println();
+                contact.getFixtureA().getBody().setLinearVelocity(0, 0);
+                contact.getFixtureB().getBody().setLinearVelocity(0, 0);
+                contact.getFixtureA().getBody().setAngularVelocity(0);
+                contact.getFixtureB().getBody().setAngularVelocity(0);
+                ((GeneralCar) contact.getFixtureA().getBody().getUserData()).crashed = true;
+                ((GeneralCar) contact.getFixtureB().getBody().getUserData()).crashed = true;
+                paused = true;
+                //    System.out.println(contact.getFixtureA().getBody().getPosition() + " " + contact.getFixtureA().getBody().getWorldCenter());
+                //    System.out.println(((GeneralCar) contact.getFixtureA().getBody().getUserData()).x + " "+ ((GeneralCar) contact.getFixtureA().getBody().getUserData()).carP.getX() + " " + ((GeneralCar) contact.getFixtureA().getBody().getUserData()).width);
+                //    System.out.println();
             }
+
             @Override
             public void endContact(Contact contact) {
             }
+
             @Override
             public void preSolve(Contact contact, Manifold oldManifold) {
 
             }
+
             @Override
             public void postSolve(Contact contact, ContactImpulse impulse) {
             }
@@ -77,7 +80,7 @@ public class CrossroadModel extends ApplicationAdapter {
         stage = new Stage(viewport);
         Gdx.input.setInputProcessor(stage);
         model = new Group();
-    //    model.setScale(1 / PPM);
+        //    model.setScale(1 / PPM);
         stage.addActor(model);
         ui = new Group();
         ui.setScale(1 / PPM);
@@ -101,7 +104,7 @@ public class CrossroadModel extends ApplicationAdapter {
         lanes.add(new Lane(14, -0.75, -0.75, 4.5, 1, 3.5, 0.5));
         lanes.add(new Lane(15, -1, -4.5, 0.75, 0.75, 3.5, 0.5));
 
-        cross = new Crossroad(camera, world, model, lanes, screen, controls, 84, PPM, UPM, 150, 0, 0);
+        cross = new Crossroad(camera, world, model, lanes, screen, PPM, UPM, 500, 0, 100);
         model.addActor(cross);
 
         initUI();
@@ -118,6 +121,11 @@ public class CrossroadModel extends ApplicationAdapter {
 
         if (!paused) world.step(1 / 60f, 6, 2);
         if (!paused) stage.act(1 / 60f);
+        for (Lane lane : cross.lanes) {
+            if (lane.n % 2 == 0) {
+                cross.removeCar(lane);
+            }
+        }
     }
 
     private void initUI() {

@@ -3,7 +3,7 @@ package com.alexkornshell.model;
 import java.util.ArrayList;
 
 public class Lane {
-    ArrayList<Car> cars;
+    ArrayList<GeneralCar> cars;
     int n;
     double fromX;
     double toX;
@@ -12,13 +12,9 @@ public class Lane {
     double length;
     double width;
 
-    public Lane() {
-        this.cars = new ArrayList<Car>();
-    }
-
     public Lane(int n, double fromX, double toX, double fromY, double toY, double length, double width) {
         this.n = n;
-        this.cars = new ArrayList<Car>();
+        this.cars = new ArrayList<>();
         this.fromX = fromX;
         this.toX = toX;
         this.fromY = fromY;

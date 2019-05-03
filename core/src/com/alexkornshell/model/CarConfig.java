@@ -9,7 +9,7 @@ public class CarConfig {
     public Lane laneF;
     public Lane laneT;
 
-    public CarConfig(int carW, int carH, double carV, int scale, Lane laneF) {
+    public CarConfig(int carW, int carH, double carV, float scale, Lane laneF) {
         this.carW = carW;
         this.carH = carH;
         this.carV = carV;
