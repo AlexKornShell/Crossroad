@@ -15,7 +15,7 @@ public class GeneralCar extends AbstractCar {
     double dw;
     double w0;
 
-    public GeneralCar(Crossroad crossroad, Lane laneF, Lane laneT, CarConfig carConfig) {
+    GeneralCar(Crossroad crossroad, Lane laneF, Lane laneT, CarConfig carConfig) {
 
         super(crossroad, laneF, laneT, carConfig);
 
@@ -99,15 +99,48 @@ public class GeneralCar extends AbstractCar {
             body.setAngularVelocity(0);
             if (abs(bodyToWorld(body.getPosition().x)) >= 1) vy = 0;
             else if (abs(bodyToWorld(body.getPosition().y)) >= 1) vx = 0;
-            if (w != 0) dw = w0 - PI / 2;
+            if (w != 0 && r <= 0.5) dw = w0 - PI / 2;
+            else if (w != 0) dw = w0 + PI / 2;
             body.setLinearVelocity((float) vx * cross.UPM, (float) vy * cross.UPM);
             //if (onX && abs(body.getLinearVelocity().y) > abs(body.getLinearVelocity().x) || !onX && abs(body.getLinearVelocity().x) > abs(body.getLinearVelocity().y)) onX = !onX;
+        }
+        //dynamics(delta);
+    }
+
+
+    private void dynamics(double delta) {
+        // IDM
+        if (onFrom || onTo || onCross) {
+            int i = laneF.cars.indexOf(this);
+            if (i > 0) {
+                GeneralCar c = laneF.cars.get(i - 1);
+
+                double sa;
+                float dva;
+                double ss;
+                float vvx = abs(body.getLinearVelocity().x);
+                float vvy = abs(body.getLinearVelocity().y);
+                if (vvx > vvy) {
+                    sa = cross.UPM * (abs(c.x - x) - 0.5 * (height + c.height));
+                    dva = vvx - abs(c.body.getLinearVelocity().x);
+                    ss = s0 + vvx * tt + vvx * dva / (2 * maxa * maxb);
+                } else {
+                    sa = cross.UPM * (abs(c.y - y) - 0.5 * (height + c.height));
+                    dva = vvy - abs(c.body.getLinearVelocity().y);
+                    ss = s0 + vvy * tt + vvy * dva / (2 * maxa * maxb);
+                }
+                if (vvx > vvy) body.applyForceToCenter(new Vector2((float) (signum(vx) * maxa * (1 - pow(vvx / v0, delt) - pow(ss / sa, 2))), 0), false);
+                else body.applyForceToCenter(new Vector2(0, (float) (signum(vy) * maxa * (1 - pow(vvy / v0, delt) - pow(ss / sa, 2)))), false);
+            } else  {
+                if (abs(vx) > abs(vy)) body.applyForceToCenter(new Vector2((float) (signum(vx) * maxa * (1 - pow(abs(body.getLinearVelocity().x / v0), delt))), 0), false);
+                else body.applyForceToCenter(new Vector2(0, (float) (signum(vy) * maxa * (1 - pow(abs(body.getLinearVelocity().y / v0), delt)))), false);
+            }
         }
     }
 
     @Override
     protected boolean toStopWithMain() {
-        if (onFrom && (abs(x) - abs(laneF.toX) < height / 2 + max(border, 0.2) && abs(x) - abs(laneF.toX) > height / 2 || abs(y) - abs(laneF.toY) < height / 2 + max(border, 0.2) && abs(y) - abs(laneF.toY) > height / 2)) {
+        if (onFrom && (abs(x) - abs(laneF.toX) < height / 2 + max(border, 0.1) && abs(x) - abs(laneF.toX) > height / 2 || abs(y) - abs(laneF.toY) < height / 2 + max(border, 0.1) && abs(y) - abs(laneF.toY) > height / 2)) {
             if (super.toStopWithMain()) return true;
             else if ((laneF.n + 1) % 16 == laneT.n) {
                 if (vy != 0) {

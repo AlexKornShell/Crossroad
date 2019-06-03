@@ -1,19 +1,19 @@
 package com.alexkornshell.model;
 
 public class CarConfig {
-    public int carW;
-    public int carH;
-    public double width;
-    public double height;
-    public double carV;
-    public Lane laneF;
-    public Lane laneT;
+    int carW;
+    int carH;
+    double width;
+    double height;
+    double carV;
+    Lane laneF;
+    Lane laneT;
 
-    public CarConfig(int carW, int carH, double carV, float scale, Lane laneF) {
+    CarConfig(int carW, int carH, double carV, float scale, Lane laneF) {
         this.carW = carW;
         this.carH = carH;
         this.carV = carV;
-        this.width = (double) carW / scale; // Было * 6 / screen
+        this.width = (double) carW / scale;
         this.height = (double) carH / scale;
         this.laneF = laneF;
     }

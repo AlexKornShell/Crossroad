@@ -6,7 +6,7 @@ import com.alexkornshell.model.CrossroadModel;
 
 public class DesktopLauncher {
     public static void main(String[] arg) {
-        int screen = 504;
+        int screen = 756;
         int controls = 200;
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
         config.width = screen + controls;

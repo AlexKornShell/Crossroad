@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -22,32 +23,38 @@ public class AbstractCar extends Actor {
     Body body;
     CarConfig carC;
 
-    double width;
-    double height;
+    double width, height;
 
-    Lane laneF;
-    Lane laneT;
+    Lane laneF, laneT;
 
-    boolean onFrom;
-    boolean onCross;
-    boolean onTo;
+    boolean onFrom, onCross, onTo;
     boolean onX;
 
-    boolean crashed;
-    boolean stopped;
+    boolean crashed, stopped;
 
-    double x;
-    double y;
-    double vx;
-    double vy;
-    double v;
+    double x, y;
+    double vx, vy, v;
 
     double angle;
 
     double border;
     double delta;
 
-    public AbstractCar(Crossroad crossroad, Lane laneF, Lane laneT, CarConfig carConfig) {
+    double maxa;
+    double v0;
+    double s0;
+    double tt;
+    double maxb;
+    double delt;
+
+    AbstractCar(Crossroad crossroad, Lane laneF, Lane laneT, CarConfig carConfig) {
+
+        maxa = 3;//0.73;
+        v0 = 30;
+        s0 = 2;
+        tt = 1.5;
+        maxb = 1.67;
+        delt = 4;
 
         this.cross = crossroad;
         this.carC = carConfig;
@@ -58,17 +65,30 @@ public class AbstractCar extends Actor {
         this.laneT = laneT;
         this.onFrom = true;
 
+        boolean queue = false;
+        if (laneF.cars.size() > 0) {
+            GeneralCar c = laneF.cars.get(laneF.cars.size() - 1);
+            if (c.x - laneF.fromX < c.height / 2 + height / 2 + width && c.x != laneF.fromX || c.y - laneF.fromY < c.height / 2 + height / 2 + width && c.y != laneF.fromY) { // Менять
+                this.x = c.x - c.height / 2 - height / 2 - width;
+                queue = true;
+            }
+        }
+
         if (laneF.toX - laneF.fromX > 0) {
             this.vx = carC.carV / (3.6 * cross.UPM); // Единицы в секунду
             this.v = vx;
-            this.x = laneF.fromX - height / 2;
+            if (queue)
+                this.x = laneF.cars.get(laneF.cars.size() - 1).x - laneF.cars.get(laneF.cars.size() - 1).height / 2 - height / 2 - width;
+            else this.x = laneF.fromX - height / 2;
             this.y = laneF.fromY;
             onX = true;
             angle = 3 * PI / 2;
         } else if (laneF.toX - laneF.fromX < 0) {
             this.vx = -carC.carV / (3.6 * cross.UPM);
             this.v = vx;
-            this.x = laneF.fromX + height / 2;
+            if (queue)
+                this.x = laneF.cars.get(laneF.cars.size() - 1).x + laneF.cars.get(laneF.cars.size() - 1).height / 2 + height / 2 + width;
+            else this.x = laneF.fromX + height / 2;
             this.y = laneF.fromY;
             onX = true;
             angle = PI / 2;
@@ -76,13 +96,17 @@ public class AbstractCar extends Actor {
             this.vy = carC.carV / (3.6 * cross.UPM);
             this.v = vy;
             this.x = laneF.fromX;
-            this.y = laneF.fromY - height / 2;
+            if (queue)
+                this.y = laneF.cars.get(laneF.cars.size() - 1).y - laneF.cars.get(laneF.cars.size() - 1).height / 2 - height / 2 - width;
+            else this.y = laneF.fromY - height / 2;
             angle = 0;
         } else {
             this.vy = -carC.carV / (3.6 * cross.UPM);
             this.v = vy;
             this.x = laneF.fromX;
-            this.y = laneF.fromY + height / 2;
+            if (queue)
+                this.y = laneF.cars.get(laneF.cars.size() - 1).y + laneF.cars.get(laneF.cars.size() - 1).height / 2 + height / 2 + width;
+            else this.y = laneF.fromY + height / 2;
             angle = PI;
         }
 
@@ -185,26 +209,24 @@ public class AbstractCar extends Actor {
             onCross = false;
             onTo = true;
         }
+        // dynamics(delta);
     }
 
     protected boolean toStopOnStraight(GeneralCar c) {
         if (vx == 0) {
-            //    double txmax = (-abs(c.vx) + sqrt(c.vx * c.vx + 2 * c.fm * (abs(laneF.toX - c.x) - c.height / 2 - width / 2 - c.border - delta))) / c.fm;
-            //    double txmin = (abs(c.vx) + sqrt(c.vx * c.vx - 2 * c.fm * (abs(laneF.toX - c.x) + c.height / 2 + width / 2))) / c.fm;
-            double txmax = (laneF.toX - c.x) / c.vx + (-c.height / 2 - width / 2) / abs(c.vx) - 1 / 60f; // - c.border - delta
-            double txmin = (laneF.toX - c.x) / c.vx + (c.height / 2 + width / 2) / abs(c.vx) + 1 / 60f;
-            double tymax = (c.laneF.toY - y) / vy + (height / 2 + c.width / 2) / abs(vy) + 1 / 60f;
-            double tymin = (c.laneF.toY - y) / vy + (-height / 2 - c.width / 2) / abs(vy) - 1 / 60f; //  - c.border - delta
+            double txmax = (laneF.toX - c.x) / c.vx + (-c.height / 2 - width / 2 - c.border) / abs(c.vx) - 1 / 60f,// - delta,
+                    txmin = (laneF.toX - c.x) / c.vx + (c.height / 2 + width / 2) / abs(c.vx) + 1 / 60f,
+                    tymax = (c.laneF.toY - y) / vy + (height / 2 + c.width / 2) / abs(vy) + 1 / 60f,
+                    tymin = (c.laneF.toY - y) / vy + (-height / 2 - c.width / 2 - border) / abs(vy) - 1 / 60f;// - delta;
     /*    if ((laneF.toX - c.x) / c.vx + (-c.height / 2 - width / 2 - c.border - delta) / abs(c.vx) < (c.laneF.toY - y) / vy + (height / 2 + c.width / 2) / abs(vy)
                 && (laneF.toX - c.x) / c.vx + (c.height / 2 + width / 2) / abs(c.vx) > (c.laneF.toY - y) / vy + (-height / 2 - c.width / 2 - border - delta) / abs(vy)) */
-            //if (!(txmax >= tymax || txmin <= tymin)) return true;
-            if (txmax - tymax < 0 && txmin - tymin > 0) return true;
+            return txmax - tymax < 0 && txmin - tymin > 0; // Оно же return !(txmax >= tymax || txmin <= tymin);
         }
         return false;
     }
 
     protected boolean toStopWithMain() {
-        if (onFrom && (abs(x) - abs(laneF.toX) < height / 2 + max(border, 0.2) && abs(x) - abs(laneF.toX) > height / 2 || abs(y) - abs(laneF.toY) < height / 2 + max(border, 0.2) && abs(y) - abs(laneF.toY) > height / 2)) {
+        if (onFrom && (abs(x) - abs(laneF.toX) < height / 2 + max(border, 0.1) && abs(x) - abs(laneF.toX) > height / 2 || abs(y) - abs(laneF.toY) < height / 2 + max(border, 0.1) && abs(y) - abs(laneF.toY) > height / 2)) {
             if ((laneF.n + 13) % 16 == laneT.n) {
                 if (vy != 0) {
                     for (GeneralCar c : cross.lanes.get((laneF.n + 4) % 16).cars) {

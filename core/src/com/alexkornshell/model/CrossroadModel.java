@@ -17,21 +17,20 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
 
+import static java.lang.Math.floor;
+
 public class CrossroadModel extends ApplicationAdapter {
 
-    final float PPM = 12f;
-    final float UPM = 7f;
-    private Viewport viewport;
-    OrthographicCamera camera;
-    Box2DDebugRenderer renderer;
-    World world;
-    Stage stage;
-    Group model;
-    Group ui;
-    Crossroad cross;
-    int screen;
-    int controls;
-    boolean paused;
+    private OrthographicCamera camera;
+    private Box2DDebugRenderer renderer;
+    private World world;
+    private Stage stage;
+    private Group model, ui;
+    private Crossroad cross;
+    private int screen, controls;
+    private boolean paused;
+    private int speed;
+    private Label lengths;
 
     public CrossroadModel(int screen, int controls) {
         this.screen = screen;
@@ -40,13 +39,20 @@ public class CrossroadModel extends ApplicationAdapter {
 
     @Override
     public void create() {
+        float PPM = 12f, UPM = 7f;
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(Gdx.graphics.getWidth() / PPM / 2f, Gdx.graphics.getHeight() / PPM / 2f, 0);
         camera.update();
-        viewport = new FitViewport(camera.viewportWidth / PPM, camera.viewportHeight / PPM, camera);
+        Viewport viewport = new FitViewport(camera.viewportWidth / PPM, camera.viewportHeight / PPM, camera);
         renderer = new Box2DDebugRenderer();
-        //    batch = new SpriteBatch();
-        //    batch.setProjectionMatrix(camera.combined);
+        stage = new Stage(viewport);
+        Gdx.input.setInputProcessor(stage);
+        model = new Group();
+        stage.addActor(model);
+        ui = new Group();
+        ui.setScale(1 / PPM);
+        stage.addActor(ui);
+        speed = 1;
 
         world = new World(new Vector2(0, 0), true);
         world.setContactListener(new ContactListener() {
@@ -59,32 +65,18 @@ public class CrossroadModel extends ApplicationAdapter {
                 ((GeneralCar) contact.getFixtureA().getBody().getUserData()).crashed = true;
                 ((GeneralCar) contact.getFixtureB().getBody().getUserData()).crashed = true;
                 paused = true;
-                //    System.out.println(contact.getFixtureA().getBody().getPosition() + " " + contact.getFixtureA().getBody().getWorldCenter());
-                //    System.out.println(((GeneralCar) contact.getFixtureA().getBody().getUserData()).x + " "+ ((GeneralCar) contact.getFixtureA().getBody().getUserData()).carP.getX() + " " + ((GeneralCar) contact.getFixtureA().getBody().getUserData()).width);
-                //    System.out.println();
             }
 
             @Override
             public void endContact(Contact contact) {
             }
-
             @Override
             public void preSolve(Contact contact, Manifold oldManifold) {
-
             }
-
             @Override
             public void postSolve(Contact contact, ContactImpulse impulse) {
             }
         });
-        stage = new Stage(viewport);
-        Gdx.input.setInputProcessor(stage);
-        model = new Group();
-        //    model.setScale(1 / PPM);
-        stage.addActor(model);
-        ui = new Group();
-        ui.setScale(1 / PPM);
-        stage.addActor(ui);
 
         ArrayList<Lane> lanes = new ArrayList<Lane>();
         lanes.add(new Lane(0, -0.25, -0.25, 4.5, 1, 3.5, 0.5));
@@ -104,7 +96,13 @@ public class CrossroadModel extends ApplicationAdapter {
         lanes.add(new Lane(14, -0.75, -0.75, 4.5, 1, 3.5, 0.5));
         lanes.add(new Lane(15, -1, -4.5, 0.75, 0.75, 3.5, 0.5));
 
-        cross = new Crossroad(camera, world, model, lanes, screen, PPM, UPM, 500, 0, 100);
+        double[] lambda = {0, 0, 0, 0, 0, 0, 1 / 5.0, 0, 0, 0, 1 / 2.5, 0, 0, 0, 0, 0};
+        double[] gamma = {0, 0, 0, 0, 0, 0, 1 / 5.0, 0, 0, 0, 1 / 2.5, 0, 0, 0, 0, 0};
+        int[] left = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        int[] right = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        double[] length = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+        cross = new Crossroad(camera, world, model, lanes, screen, PPM, UPM, lambda, gamma, left, right, length);
         model.addActor(cross);
 
         initUI();
@@ -117,15 +115,19 @@ public class CrossroadModel extends ApplicationAdapter {
         camera.update();
 
         stage.draw();
-    //    renderer.render(world, camera.combined);
+        //    renderer.render(world, camera.combined);
 
-        if (!paused) world.step(1 / 60f, 6, 2);
-        if (!paused) stage.act(1 / 60f);
-        for (Lane lane : cross.lanes) {
-            if (lane.n % 2 == 0) {
-                cross.removeCar(lane);
+        for (int i = 0; i < speed; i++) {
+            if (!paused) world.step(1 / 60f, 6, 2);
+            if (!paused) stage.act(1 / 60f);
+            for (Lane lane : cross.lanes) {
+                if (lane.n % 2 == 0) {
+                    cross.removeCar(lane);
+                }
             }
         }
+
+        lengths.setText("Queue 6: " + floor(cross.length[6] * 100) / 100);
     }
 
     private void initUI() {
@@ -136,23 +138,23 @@ public class CrossroadModel extends ApplicationAdapter {
         ui.addActor(blank);
 
         Label label = new Label("Manage traffic", skin, "black");
-        label.setPosition(screen + controls / 2 - label.getWidth() / 2, screen - label.getHeight() - 20);
+        label.setPosition(screen + controls / 2f - label.getWidth() / 2, screen - label.getHeight() - 20);
         ui.addActor(label);
 
         Label ldensity = new Label("Density  ", skin, "black");
         ldensity.setPosition(screen + 20, screen - label.getHeight() - ldensity.getHeight() - 50);
         ui.addActor(ldensity);
 
-        final TextField density = new TextField("" + cross.density, skin);
-        density.setSize(50, ldensity.getHeight());
-        density.setPosition(screen + ldensity.getWidth() + 30, screen - label.getHeight() - ldensity.getHeight() - 50);
-        ui.addActor(density);
+        final TextField lambda = new TextField("" + cross.lambda[6], skin);
+        lambda.setSize(50, ldensity.getHeight());
+        lambda.setPosition(screen + ldensity.getWidth() + 30, screen - label.getHeight() - ldensity.getHeight() - 50);
+        ui.addActor(lambda);
 
         Label lleft = new Label("Left (%)  ", skin, "black");
         lleft.setPosition(screen + 20, screen - label.getHeight() - ldensity.getHeight() - lleft.getHeight() - 60);
         ui.addActor(lleft);
 
-        final TextField left = new TextField("" + cross.left, skin);
+        final TextField left = new TextField("" + cross.left[0], skin);
         left.setSize(38, lleft.getHeight());
         left.setPosition(screen + lleft.getWidth() + 30, screen - label.getHeight() - ldensity.getHeight() - lleft.getHeight() - 60);
         ui.addActor(left);
@@ -161,19 +163,23 @@ public class CrossroadModel extends ApplicationAdapter {
         lright.setPosition(screen + 20, screen - label.getHeight() - ldensity.getHeight() - lleft.getHeight() - lright.getHeight() - 70);
         ui.addActor(lright);
 
-        final TextField right = new TextField("" + cross.right, skin);
+        final TextField right = new TextField("" + cross.right[2], skin);
         right.setSize(38, lleft.getHeight());
         right.setPosition(screen + lright.getWidth() + 30, screen - label.getHeight() - ldensity.getHeight() - lleft.getHeight() - lright.getHeight() - 70);
         ui.addActor(right);
 
         TextButton apply = new TextButton("Apply", skin, "black");
-        apply.setPosition(screen + controls / 2 - apply.getWidth() / 2, screen - label.getHeight() - ldensity.getHeight() - lleft.getHeight() - lright.getHeight() - apply.getHeight() - 80);
+        apply.setPosition(screen + controls / 2f - apply.getWidth() / 2, screen - label.getHeight() - ldensity.getHeight() - lleft.getHeight() - lright.getHeight() - apply.getHeight() - 80);
         apply.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                if (density.getText().matches("\\d+")) cross.density = Integer.valueOf(density.getText());
-                if (left.getText().matches("\\d+")) cross.left = Integer.valueOf(left.getText());
-                if (right.getText().matches("\\d+")) cross.right = Integer.valueOf(right.getText());
+                if (lambda.getText().matches("\\d+"))
+                    for (int i = 2; i < cross.lanes.size(); i += 2) cross.lambda[i] = Integer.valueOf(lambda.getText());
+                if (left.getText().matches("\\d+"))
+                    for (int i = 0; i < cross.lanes.size(); i += 4) cross.left[i] = Integer.valueOf(left.getText());
+                if (right.getText().matches("\\d+")) {
+                    for (int i = 2; i < cross.lanes.size(); i += 4) cross.right[i] = Integer.valueOf(right.getText());
+                }
             }
         });
         ui.addActor(apply);
@@ -207,6 +213,31 @@ public class CrossroadModel extends ApplicationAdapter {
             }
         });
         ui.addActor(stop);
+
+        ImageButton speedup = new ImageButton(skin, "play");
+        speedup.setPosition(screen + 50, screen - label.getHeight() - ldensity.getHeight() - lleft.getHeight() - lright.getHeight() - apply.getHeight() - play.getHeight() - speedup.getHeight() - 100);
+        speedup.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                speed++;
+            }
+        });
+        ui.addActor(speedup);
+
+        ImageButton speeddown = new ImageButton(skin, "play");
+        speeddown.setPosition(screen + speedup.getWidth() + 60, screen - label.getHeight() - ldensity.getHeight() - lleft.getHeight() - lright.getHeight() - apply.getHeight() - play.getHeight() - speeddown.getHeight() - 100);
+        speeddown.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                speed--;
+            }
+        });
+        ui.addActor(speeddown);
+
+        lengths = new Label("Queue 6: " + cross.length[6], skin, "black");
+        lengths.setPosition(screen + controls / 2f - lengths.getWidth() / 2,
+                screen - label.getHeight() - ldensity.getHeight() - lleft.getHeight() - lright.getHeight() - apply.getHeight() - play.getHeight() - speedup.getHeight() - lengths.getHeight() - 120);
+        ui.addActor(lengths);
     }
 
     @Override
