@@ -1,13 +1,9 @@
 package com.alexkornshell.model;
 
 public class CarConfig {
-    int carW;
-    int carH;
-    double width;
-    double height;
-    double carV;
-    Lane laneF;
-    Lane laneT;
+    int carW, carH;
+    double width, height, carV;
+    Lane laneF, laneT;
 
     CarConfig(int carW, int carH, double carV, float scale, Lane laneF) {
         this.carW = carW;

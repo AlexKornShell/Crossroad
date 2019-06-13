@@ -6,16 +6,14 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
-
 import java.util.ArrayList;
-
 import static java.lang.Math.abs;
 
 public class Crossroad extends Actor {
     float PPM, UPM; // Их произведение - количество пикселей на две полосы, т.е. на 7 реальных метров, или на 1-цу ширины.
     OrthographicCamera camera;
     World world;
-    private Group model;
+    Group model;
     private Texture cross;
     ArrayList<Lane> lanes;
     int screen;
@@ -32,7 +30,7 @@ public class Crossroad extends Actor {
         this.camera = camera;
         this.world = world;
         this.model = model;
-        cross = new Texture("core/assets/crossroad" + screen + "1.jpg");
+        cross = new Texture(("core/assets/crossroad" + screen).concat("1.jpg"));
         this.lanes = lanes;
         this.screen = screen;
         this.lambda = lambda;
@@ -40,6 +38,7 @@ public class Crossroad extends Actor {
         this.left = left;
         this.right = right;
         this.length = length;
+        for (Lane lane : lanes) if (lane.n % 2 == 0) lane.createStop(this);
     }
 
     @Override
@@ -48,7 +47,7 @@ public class Crossroad extends Actor {
         for (Lane lane : lanes) {
             length[lane.n] = length[lane.n] * n;
             for (GeneralCar car : lane.cars)
-                if (car.onFrom && car.body.getLinearVelocity().len2() <= 0.5) length[lane.n]++; // Надо менять
+                if (car.onFrom && (car.body.getLinearVelocity().len2() <= 9)) length[lane.n]++; // Менять
             length[lane.n] = length[lane.n] / (n + 1);
         }
         t += delta;
@@ -57,18 +56,13 @@ public class Crossroad extends Actor {
 
     @Override
     public void draw(Batch batch, float alpha) {
-        batch.draw(cross, 0, 0, screen / PPM, screen / PPM); // Changed batch.draw(cross, 0, 0);
-        /*  Texture ver = new Texture("core/assets/ver.png");
-            Texture hor = new Texture("core/assets/hor.png");
-            batch.draw(ver, (float) (screen / 2.0 - scale), 0);
-        	batch.draw(hor, 0, (float) (screen / 2.0 - scale));
-        	batch.draw(ver, (float) (screen / 2.0 + scale), 0);
-        	batch.draw(hor, 0, (float) (screen / 2.0 + scale)); */
+        batch.draw(cross, 0, 0, screen / PPM, screen / PPM);
+        //for (Lane lane : lanes) if (lane.n % 2 == 0) batch.draw(lane.stop.carR, lane.stop.worldToScreen());
     }
 
     private void generateCars(double[] lambda) {
         for (Lane lane : lanes) {
-            if (lane.n % 2 == 0) { // if (lane.n == 6 || lane.n == 10 || lane.n == 12 || lane.n == 8) {
+            if (lane.n % 2 == 0) {
                 GeneralCar car = lane.generateCar(this, t, lambda[lane.n], gamma[lane.n], left[lane.n], right[lane.n]);
                 if (car != null) model.addActor(car);
             }
@@ -79,7 +73,7 @@ public class Crossroad extends Actor {
         AbstractCar c;
         for (int i = 0; i < laneF.cars.size(); i++) {
             c = laneF.cars.get(i);
-            if (c.onTo && (abs(c.x) > 5 || abs(c.y) > 5)) {
+            if (c.onTo && (abs(c.x) > 5 || abs(c.y) > 5) || c.crashed) {
                 laneF.cars.remove(i);
                 //    car.body.destroyFixture(car.body.getFixtureList().get(0));
                 if (c.body != null) world.destroyBody(c.body);
